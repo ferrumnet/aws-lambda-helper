@@ -29,7 +29,7 @@
     "webpack-babel-jest": "^1.0.4"
   },
   "dependencies": {
-    "aws-sdk": "^2.572.0",
+    "aws-sdk": "^2.814.0",
     "ferrum-crypto": "git+https://github.com/ferrumnet/ferrum-crypto.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
