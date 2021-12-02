@@ -13,6 +13,7 @@ export class TwoFaEncryptionClient implements Injectable {
 		logFac: LoggerFactory,
 		private apiSecret: string,
 		private apiPub: string,
+		private queryServerTimestamp: boolean,
 	) {
 		this.fetcher = new Fetcher(logFac);
 	}
@@ -31,7 +32,7 @@ export class TwoFaEncryptionClient implements Injectable {
 
 	async newKey(): Promise<{ keyId: string, secret: string }> {
 		const req = JSON.stringify({ command: 'newTwoFaWrapperKey', data: {}, params: [] } as JsonRpcRequest);
-		const auth = new HmacAuthProvider(req, this.apiSecret, this.apiPub);
+		const auth = new HmacAuthProvider(req, this.apiSecret, await this.serverTimestamp(), this.apiPub);
 		const res = await this.fetcher.fetch<{keyId: string, secret: string}>(this.uri, {
                 method: 'POST',
                 mode: 'cors',
@@ -53,10 +54,27 @@ export class TwoFaEncryptionClient implements Injectable {
 		return this.cyptor.decryptToHex({key: dataKey, data: dataData}, wrapperKey);
 	}
 
+	async serverTimestamp(): Promise<number> {
+		if (!this.queryServerTimestamp) {
+			return Date.now();
+		}
+		const req = JSON.stringify({ command: 'getServerTimestamp', data: {  }, params: [] } as JsonRpcRequest);
+		const res = await this.fetcher.fetch<{wrapperKey: string}>(this.uri, {
+                method: 'POST',
+                mode: 'cors',
+                body: req,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+		ValidationUtils.isTrue(!!res, `Error calling ${this.uri}. No timestamp returned`);
+		return Number(res);
+	}
+
 	private async getTwoFaWrapperKey(keyId: string, twoFa: string, dataKeyId: string): Promise<string> {
 		const req = JSON.stringify({ command: 'getTwoFaWrapperKey',
 			data: { keyId, twoFa, dataKeyId }, params: [] } as JsonRpcRequest);
-		const auth = new HmacAuthProvider(req, this.apiSecret, this.apiPub);
+		const auth = new HmacAuthProvider(req, this.apiSecret, await this.serverTimestamp(), this.apiPub);
 		const res = await this.fetcher.fetch<{wrapperKey: string}>(this.uri, {
                 method: 'POST',
                 mode: 'cors',
