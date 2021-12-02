@@ -13,11 +13,12 @@ const ferrum_plumbing_1 = require("ferrum-plumbing");
 const HmacAuthProvider_1 = require("./HmacAuthProvider");
 const DATA_KEY_DELIM = '|**|';
 class TwoFaEncryptionClient {
-    constructor(cyptor, uri, logFac, apiSecret, apiPub) {
+    constructor(cyptor, uri, logFac, apiSecret, apiPub, queryServerTimestamp) {
         this.cyptor = cyptor;
         this.uri = uri;
         this.apiSecret = apiSecret;
         this.apiPub = apiPub;
+        this.queryServerTimestamp = queryServerTimestamp;
         this.fetcher = new ferrum_plumbing_1.Fetcher(logFac);
     }
     __name__() { return 'TwoFaEncryptionClient'; }
@@ -35,7 +36,7 @@ class TwoFaEncryptionClient {
     newKey() {
         return __awaiter(this, void 0, void 0, function* () {
             const req = JSON.stringify({ command: 'newTwoFaWrapperKey', data: {}, params: [] });
-            const auth = new HmacAuthProvider_1.HmacAuthProvider(req, this.apiSecret, this.apiPub);
+            const auth = new HmacAuthProvider_1.HmacAuthProvider(req, this.apiSecret, yield this.serverTimestamp(), this.apiPub);
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
                 mode: 'cors',
@@ -55,11 +56,29 @@ class TwoFaEncryptionClient {
             return this.cyptor.decryptToHex({ key: dataKey, data: dataData }, wrapperKey);
         });
     }
+    serverTimestamp() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.queryServerTimestamp) {
+                return Date.now();
+            }
+            const req = JSON.stringify({ command: 'getServerTimestamp', data: {}, params: [] });
+            const res = yield this.fetcher.fetch(this.uri, {
+                method: 'POST',
+                mode: 'cors',
+                body: req,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            ferrum_plumbing_1.ValidationUtils.isTrue(!!res, `Error calling ${this.uri}. No timestamp returned`);
+            return Number(res);
+        });
+    }
     getTwoFaWrapperKey(keyId, twoFa, dataKeyId) {
         return __awaiter(this, void 0, void 0, function* () {
             const req = JSON.stringify({ command: 'getTwoFaWrapperKey',
                 data: { keyId, twoFa, dataKeyId }, params: [] });
-            const auth = new HmacAuthProvider_1.HmacAuthProvider(req, this.apiSecret, this.apiPub);
+            const auth = new HmacAuthProvider_1.HmacAuthProvider(req, this.apiSecret, yield this.serverTimestamp(), this.apiPub);
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
                 mode: 'cors',

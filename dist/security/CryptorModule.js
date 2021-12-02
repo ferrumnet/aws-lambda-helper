@@ -24,7 +24,7 @@ class CryptorModule {
         return __awaiter(this, void 0, void 0, function* () {
             c.register(KmsCryptor_1.KmsCryptor, c => new KmsCryptor_1.KmsCryptor(c.get('KMS'), this.kmsKeyArn));
             c.register(DoubleEncryptionService_1.DoubleEncryptiedSecret, c => new DoubleEncryptionService_1.DoubleEncryptiedSecret(c.get(KmsCryptor_1.KmsCryptor), c.get(TwoFaEncryptionClient_1.TwoFaEncryptionClient)));
-            c.register(TwoFaEncryptionClient_1.TwoFaEncryptionClient, c => new TwoFaEncryptionClient_1.TwoFaEncryptionClient(c.get(ferrum_crypto_1.WebNativeCryptor), this.twoFaApiUri, c.get(ferrum_plumbing_1.LoggerFactory), this.twoFaApiSecret, this.twoFaApiAccess));
+            c.register(TwoFaEncryptionClient_1.TwoFaEncryptionClient, c => new TwoFaEncryptionClient_1.TwoFaEncryptionClient(c.get(ferrum_crypto_1.WebNativeCryptor), this.twoFaApiUri, c.get(ferrum_plumbing_1.LoggerFactory), this.twoFaApiSecret, this.twoFaApiAccess, false));
             c.register(ferrum_crypto_1.WebNativeCryptor, c => new ferrum_crypto_1.WebNativeCryptor(c.get(ferrum_crypto_1.CryptoJsKeyProvider)));
             c.register(ferrum_crypto_1.CryptoJsKeyProvider, c => new ferrum_crypto_1.CryptoJsKeyProvider());
         });

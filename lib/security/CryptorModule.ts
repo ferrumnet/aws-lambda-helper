@@ -21,6 +21,7 @@ export class CryptorModule implements Module {
 			c.get(LoggerFactory),
 			this.twoFaApiSecret,
 			this.twoFaApiAccess,
+			false,
 		 ));
 		c.register(WebNativeCryptor, c => new WebNativeCryptor(c.get(CryptoJsKeyProvider)));
 		c.register(CryptoJsKeyProvider, c => new CryptoJsKeyProvider());
