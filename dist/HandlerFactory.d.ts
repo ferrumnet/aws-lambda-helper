@@ -11,11 +11,13 @@ export interface LambdaSqsHandler extends Handler<LambdaSqsRequest, any, any> {
 }
 export interface LambdaHttpHandler extends Handler<LambdaHttpRequest, any, LambdaHttpResponse> {
 }
+export declare type AuthenticationTokenType = 'json' | 'ecdsa' | 'hmac' | 'none';
 export declare class LambdaHttpHandlerHelper {
     static preProcess(request: LambdaHttpRequest): {
         authToken?: string;
         preFlight?: any;
     };
+    static authType(token: string): AuthenticationTokenType;
 }
 export declare class HandlerFactory implements Injectable, LifecycleParent<LambdaHttpRequest | LambdaSqsRequest> {
     private sqsHandler;

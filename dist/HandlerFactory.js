@@ -25,6 +25,18 @@ class LambdaHttpHandlerHelper {
         request.path = request.path || request.url;
         return { authToken };
     }
+    static authType(token) {
+        if (!token) {
+            return 'none';
+        }
+        if (token.startsWith('hmac/')) {
+            return 'hmac';
+        }
+        if (token.startsWith('ecdsa/')) {
+            return 'ecdsa';
+        }
+        return 'json';
+    }
 }
 exports.LambdaHttpHandlerHelper = LambdaHttpHandlerHelper;
 class HandlerFactory {
