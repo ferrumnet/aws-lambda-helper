@@ -33,7 +33,7 @@ class HmacAuthProvider {
         return ferrum_crypto_1.hmac(this.secret, (this.url || '') + '|' + this.timestamp + '|' + this.postData);
     }
     getAuthSession() {
-        return '';
+        return this.publicKey || '';
     }
     isValid(headers) {
         throw new Error('Cannot validate hmac synchronously');

@@ -28,7 +28,7 @@ export class HmacAuthProvider implements AuthenticationProvider, AuthenticationV
 	}
 
     getAuthSession(): string {
-        return '';
+        return this.publicKey || '';
     }
 
     isValid(headers: any): boolean {
