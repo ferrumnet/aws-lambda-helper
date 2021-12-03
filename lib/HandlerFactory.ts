@@ -31,8 +31,6 @@ function handlePreflight(request: any) {
     }
 }
 
-export type AuthenticationTokenType = 'json' | 'ecdsa' | 'hmac' | 'none';
-
 export class LambdaHttpHandlerHelper {
     static preProcess(request: LambdaHttpRequest): {authToken?: string, preFlight?: any} {
         const preFlight = handlePreflight(request);
@@ -43,19 +41,6 @@ export class LambdaHttpHandlerHelper {
         const authToken = (headers.authorization || headers.Authorization  || '').split(' ')[1];
         request.path = request.path || (request as any).url;
         return {authToken};
-    }
-
-    static authType(token: string): AuthenticationTokenType {
-      if (!token) {
-        return 'none';
-      }
-      if (token.startsWith('hmac/')) {
-        return 'hmac';
-      }
-      if (token.startsWith('ecdsa/')) {
-        return 'ecdsa';
-      }
-      return 'json';
     }
 }
 

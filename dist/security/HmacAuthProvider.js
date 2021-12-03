@@ -49,9 +49,10 @@ class HmacAuthProvider {
                 return [false, 'Not hmac'];
             }
             ferrum_plumbing_1.ValidationUtils.isTrue(!!this.publicToSecret, 'publicToSecret not set');
-            if (!SecurityUtils_1.SecurityUtils.timestampInRange) {
+            if (!SecurityUtils_1.SecurityUtils.timestampInRange(timestamp)) {
                 return [false, 'Expired'];
             }
+            this.timestamp = Number(timestamp);
             this.secret = yield this.publicToSecret(pubKey);
             if (!this.secret) {
                 return [false, 'Invalid key'];

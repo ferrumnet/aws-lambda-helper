@@ -1,5 +1,6 @@
 import { sha256sync, Ecdsa } from "ferrum-crypto";
 import { AuthenticationProvider, AuthenticationVerifyer, HexString, ValidationUtils } from "ferrum-plumbing";
+import { SecurityUtils } from "./SecurityUtils";
 
 /**
  * Authenticate, or create headers for, using ECDSA signature. The authSession is the authenticated address.
@@ -45,6 +46,9 @@ export class EcdsaAuthProvider implements AuthenticationProvider, Authentication
 		const [prefix, timestamp, sig] = auth.split('/');
 		if (prefix !== 'ecdsa' || !timestamp || !sig) { return [false, 'Not ecdsa']; }
 		ValidationUtils.isTrue(!!this.addressValid, 'addressValid not set');
+		if (!SecurityUtils.timestampInRange(timestamp)) {
+			return [false, 'Expired'];
+		}
 		this.timestamp = Number(timestamp);
 		const address = Ecdsa.recoverAddress(sig, this.hash());
 		const valid = await this.addressValid!(address);

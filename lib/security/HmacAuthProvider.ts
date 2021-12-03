@@ -41,9 +41,10 @@ export class HmacAuthProvider implements AuthenticationProvider, AuthenticationV
 		const [prefix, pubKey, timestamp, hash] = auth.split('/');
 		if (prefix !== 'hmac' || !pubKey || !hash) { return [false, 'Not hmac']; }
 		ValidationUtils.isTrue(!!this.publicToSecret, 'publicToSecret not set');
-		if (!SecurityUtils.timestampInRange) {
+		if (!SecurityUtils.timestampInRange(timestamp)) {
 			return [false, 'Expired'];
 		}
+		this.timestamp = Number(timestamp);
 		this.secret = await this.publicToSecret!(pubKey);
 		if (!this.secret) { return [false, 'Invalid key']; }
 		if (!this.hash() === hash) {

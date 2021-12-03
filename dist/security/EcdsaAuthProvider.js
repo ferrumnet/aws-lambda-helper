@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const ferrum_crypto_1 = require("ferrum-crypto");
 const ferrum_plumbing_1 = require("ferrum-plumbing");
+const SecurityUtils_1 = require("./SecurityUtils");
 /**
  * Authenticate, or create headers for, using ECDSA signature. The authSession is the authenticated address.
  */
@@ -51,6 +52,9 @@ class EcdsaAuthProvider {
                 return [false, 'Not ecdsa'];
             }
             ferrum_plumbing_1.ValidationUtils.isTrue(!!this.addressValid, 'addressValid not set');
+            if (!SecurityUtils_1.SecurityUtils.timestampInRange(timestamp)) {
+                return [false, 'Expired'];
+            }
             this.timestamp = Number(timestamp);
             const address = ferrum_crypto_1.Ecdsa.recoverAddress(sig, this.hash());
             const valid = yield this.addressValid(address);
