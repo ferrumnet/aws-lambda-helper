@@ -13,12 +13,22 @@ export declare class Web3Utils {
     static zX(str: string): string;
 }
 export declare function tryWithBytes32(web3: any, name: string, address: string, fun: () => Promise<any>): Promise<any>;
+export declare type EthereumTransactionStatus = 'timedout' | 'failed' | 'pending' | 'successful';
+export interface EthereumTransactionSummary {
+    network: string;
+    id: string;
+    status: EthereumTransactionStatus;
+    confirmationTime: number;
+    confirmations: number;
+}
 export declare class EthereumSmartContractHelper implements Injectable {
     private provider;
     private cache;
     constructor(provider: Web3ProviderConfig);
     __name__(): string;
-    getTransactionStatus(network: string, tid: string, submissionTime: number): Promise<'timedout' | 'failed' | 'pending' | 'successful'>;
+    getTransactionStatus(network: string, tid: string, submissionTime: number): Promise<EthereumTransactionStatus | undefined>;
+    getTransactionSummary(network: string, tid: string, submissionTime?: number): Promise<EthereumTransactionSummary | undefined>;
+    blockByNumber(network: string, blockNo: number): Promise<import("web3-eth").BlockTransactionObject>;
     approveMaxRequests(currency: string, approver: string, value: string, approvee: string, approveeName: string, nonce?: number): Promise<[number, CustomTransactionCallRequest[]]>;
     approveRequests(currency: string, approver: string, value: string, approvee: string, approveeName: string, nonce?: number): Promise<[number, CustomTransactionCallRequest[]]>;
     private _approveRequests;

@@ -9,6 +9,7 @@ import { Eth } from "web3-eth";
 export type Web3ProviderConfig = { [network: string]: string };
 
 const PROVIDER_TIMEOUT = 1000 * 3600;
+const BLOCK_CACH_TIMEOUT = 1000 * 360;
 
 const MAX_AMOUNT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 
@@ -48,6 +49,16 @@ export async function tryWithBytes32(web3: any, name: string, address: string, f
     }
 }
 
+export type EthereumTransactionStatus = 'timedout' | 'failed' | 'pending' | 'successful';
+
+export interface EthereumTransactionSummary {
+    network: string;
+    id: string;
+    status: EthereumTransactionStatus;
+    confirmationTime: number;
+    confirmations: number;
+};
+
 export class EthereumSmartContractHelper implements Injectable {
     private cache: LocalCache;
     constructor(
@@ -59,17 +70,57 @@ export class EthereumSmartContractHelper implements Injectable {
     __name__() { return 'EthereumSmartContractHelper'; }
 
     async getTransactionStatus(network: string, tid: string, submissionTime: number):
-        Promise<'timedout' | 'failed' | 'pending' | 'successful'> {
+        Promise<EthereumTransactionStatus|undefined> {
+        const ts = await this.getTransactionSummary(network, tid, submissionTime);
+        return ts ? ts.status : undefined;
+    }
+
+    async getTransactionSummary(network: string, tid: string, submissionTime?: number):
+        Promise<EthereumTransactionSummary|undefined> {
         const web3 = this.web3(network);
         const t = await web3.getTransaction(tid);
-        if (!t && (submissionTime + Web3Utils.TRANSACTION_TIMEOUT > Date.now()) ) {
-            return 'timedout';
+        if (!t) {
+            return undefined;
+        }
+        if (!t && !!submissionTime &&
+                ((submissionTime + Web3Utils.TRANSACTION_TIMEOUT) < Date.now()) ) {
+            return {
+                network, id: tid,
+                confirmationTime: 0,
+                confirmations: 0,
+                status: 'timedout',
+            };
         }
         if (!t || !t.blockNumber) {
-            return 'pending';
+            return {
+                network, id: tid,
+                confirmationTime: 0,
+                confirmations: 0,
+                status: 'pending',
+            }
         }
         const receipt = await web3.getTransactionReceipt(tid);
-        return !!receipt.status ? 'successful' : 'failed';
+        const status = !!receipt.status ? 'successful' : 'failed';
+        const block = await web3.getBlockNumber();
+        const txBlock = await this.blockByNumber(network, t.blockNumber);
+        return {
+            network, id: tid,
+            confirmationTime: Number(txBlock.timestamp || '0') * 1000,
+            confirmations: (block - txBlock.number) + 1,
+            status,
+        }
+    }
+
+    public async blockByNumber(network: string, blockNo: number) {
+        try {
+            return await this.cache.getAsync(`BLOCK_BY_NO:${network}/${blockNo}`, async () => {
+                const web3 = this.web3(network);
+                const block = await web3.getBlock(blockNo, false);
+                return block;
+            }, BLOCK_CACH_TIMEOUT);
+        } catch(e) {
+            throw new Error(`Error calling getBlock(${blockNo}) for ${network}: ${e as Error}`);
+        }
     }
 
     public async approveMaxRequests(
