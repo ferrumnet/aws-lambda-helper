@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@oclif/command": "^1.8.0",
-    "aws-sdk": "^2.814.0",
+    "aws-sdk": "^2.903.0",
     "big.js": "^5.2.2",
     "ethers": "^5.4.1",
     "ferrum-crypto": "git+https://github.com/ferrumnet/ferrum-crypto.git",
