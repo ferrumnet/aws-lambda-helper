@@ -17,7 +17,11 @@ export class SimulateLamdba {
         });
 
         console.log('BODY', body);
-        const wrapped = { ...req, httpMethod: 'POST', body };
+        const wrapped = {
+            headers: req.headers,
+            httpMethod: (req as any).httpMethod || req.method || 'POST',
+            body
+          };
         const rv = await handler(wrapped, {});
         res.writeHead(rv.statusCode, rv.headers);
         res.end(rv.body);

@@ -18,6 +18,7 @@ const ApiKeyModel = (c: Connection) =>
 
 export class HmacApiKeyStore extends MongooseConnection implements Injectable {
 	private model: Model<ApiKeyStorage&Document> | undefined;
+	private con: Connetion|undefined;
 	constructor(
 		private cryptor: WebNativeCryptor,
 	) {
@@ -27,6 +28,7 @@ export class HmacApiKeyStore extends MongooseConnection implements Injectable {
 	__name__() { return 'HmacApiKeyStore'; }
 
 	initModels(c: Connection) {
+		this.con = c;
 		this.model = ApiKeyModel(c);
 	}
 
@@ -47,5 +49,11 @@ export class HmacApiKeyStore extends MongooseConnection implements Injectable {
 		const data = (await this.model!.findOne({accessKey})) as ApiKeyStorage;
 		ValidationUtils.isTrue(!!data, 'Api access key not found');
 		return this.cryptor.decryptToHex(data.secretKey);
+	}
+
+	async close() {
+		if (this.con) {
+			await this.con!.close();
+		}
 	}
 }
