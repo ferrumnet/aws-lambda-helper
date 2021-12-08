@@ -27,7 +27,11 @@ class SimulateLamdba {
                     console.error(err);
                 });
                 console.log('BODY', body);
-                const wrapped = Object.assign({}, req, { httpMethod: 'POST', body });
+                const wrapped = {
+                    headers: req.headers,
+                    httpMethod: req.httpMethod || req.method || 'POST',
+                    body
+                };
                 const rv = yield handler(wrapped, {});
                 res.writeHead(rv.statusCode, rv.headers);
                 res.end(rv.body);

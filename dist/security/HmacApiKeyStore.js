@@ -23,6 +23,7 @@ class HmacApiKeyStore extends MongooseConnector_1.MongooseConnection {
     }
     __name__() { return 'HmacApiKeyStore'; }
     initModels(c) {
+        this.con = c;
         this.model = ApiKeyModel(c);
     }
     registerKey(accessKey, secretKey) {
@@ -43,6 +44,13 @@ class HmacApiKeyStore extends MongooseConnector_1.MongooseConnection {
             const data = (yield this.model.findOne({ accessKey }));
             ferrum_plumbing_1.ValidationUtils.isTrue(!!data, 'Api access key not found');
             return this.cryptor.decryptToHex(data.secretKey);
+        });
+    }
+    close() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.con) {
+                yield this.con.close();
+            }
         });
     }
 }

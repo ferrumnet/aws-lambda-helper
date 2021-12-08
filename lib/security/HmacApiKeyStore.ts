@@ -18,7 +18,7 @@ const ApiKeyModel = (c: Connection) =>
 
 export class HmacApiKeyStore extends MongooseConnection implements Injectable {
 	private model: Model<ApiKeyStorage&Document> | undefined;
-	private con: Connetion|undefined;
+	private con: Connection|undefined;
 	constructor(
 		private cryptor: WebNativeCryptor,
 	) {

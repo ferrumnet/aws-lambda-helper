@@ -9,10 +9,12 @@ export interface ApiKeyStorage {
 export declare class HmacApiKeyStore extends MongooseConnection implements Injectable {
     private cryptor;
     private model;
+    private con;
     constructor(cryptor: WebNativeCryptor);
     __name__(): string;
     initModels(c: Connection): void;
     registerKey(accessKey: string, secretKey: string): Promise<void>;
     publicToSecret(accessKey: string): Promise<string>;
+    close(): Promise<void>;
 }
 //# sourceMappingURL=HmacApiKeyStore.d.ts.map
