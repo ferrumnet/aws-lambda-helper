@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ferrum_plumbing_1 = require("ferrum-plumbing");
-const MongooseConnector_1 = require("lib/dataLayer/mongoose/MongooseConnector");
+const MongooseConnector_1 = require("../dataLayer/mongoose/MongooseConnector");
 const mongoose_1 = require("mongoose");
 const apiKeyStorageSchema = new mongoose_1.Schema({
     accessKey: String,

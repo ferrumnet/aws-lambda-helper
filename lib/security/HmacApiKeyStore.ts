@@ -1,6 +1,6 @@
 import { WebNativeCryptor } from "ferrum-crypto";
 import { EncryptedData, Injectable, ValidationUtils } from "ferrum-plumbing";
-import { MongooseConnection } from "lib/dataLayer/mongoose/MongooseConnector";
+import { MongooseConnection } from "../dataLayer/mongoose/MongooseConnector";
 import { Connection, Document, Model, Schema } from "mongoose";
 
 export interface ApiKeyStorage {
