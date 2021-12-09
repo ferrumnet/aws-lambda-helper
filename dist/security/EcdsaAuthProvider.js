@@ -23,7 +23,9 @@ class EcdsaAuthProvider {
         this.addressValid = addressValid;
     }
     asHeader() {
-        return { key: 'Authorization', value: `ecdsa/${this.timestamp}/${this.sign()}` };
+        const sig = this.sign();
+        ferrum_plumbing_1.ValidationUtils.isTrue(!!this.address, 'EcdsaAuthProvider: No address');
+        return { key: 'Authorization', value: `ecdsa/${this.address}/${this.timestamp}/${sig}` };
     }
     hash() {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.postData, 'postData is required for ecdsa hash');
@@ -33,7 +35,9 @@ class EcdsaAuthProvider {
     sign() {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.privateKey, 'privateKey is required for signing');
         const h = this.hash();
-        return ferrum_crypto_1.Ecdsa.sign(this.privateKey, h);
+        const sig = ferrum_crypto_1.Ecdsa.sign(this.privateKey, h);
+        this.address = ferrum_crypto_1.Ecdsa.recoverAddress(sig, h);
+        return sig;
     }
     getAuthSession() {
         return this.address || '';
@@ -47,7 +51,7 @@ class EcdsaAuthProvider {
             if (!auth) {
                 return [false, 'No authorization header'];
             }
-            const [prefix, timestamp, sig] = auth.split('/');
+            const [prefix, address, timestamp, sig] = auth.split('/');
             if (prefix !== 'ecdsa' || !timestamp || !sig) {
                 return [false, 'Not ecdsa'];
             }
@@ -56,10 +60,13 @@ class EcdsaAuthProvider {
                 return [false, 'Expired'];
             }
             this.timestamp = Number(timestamp);
-            const address = ferrum_crypto_1.Ecdsa.recoverAddress(sig, this.hash());
+            const recoveredAddress = ferrum_crypto_1.Ecdsa.recoverAddress(sig, this.hash());
+            if (address !== recoveredAddress) {
+                return [false, 'Invalid signature'];
+            }
             const valid = yield this.addressValid(address);
             if (!valid) {
-                return [false, 'Invalid signature'];
+                return [false, 'Invalid signer'];
             }
             this.address = address;
             return [true, ''];

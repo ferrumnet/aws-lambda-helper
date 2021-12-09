@@ -17,7 +17,9 @@ export class EcdsaAuthProvider implements AuthenticationProvider, Authentication
 	}
 
     asHeader(): { key: string; value: string } {
-        return {key: 'Authorization', value: `ecdsa/${this.timestamp}/${this.sign()}`};
+		const sig = this.sign();
+		ValidationUtils.isTrue(!!this.address, 'EcdsaAuthProvider: No address');
+        return {key: 'Authorization', value: `ecdsa/${this.address}/${this.timestamp}/${sig}`};
     }
 
 	private hash() {
@@ -29,7 +31,9 @@ export class EcdsaAuthProvider implements AuthenticationProvider, Authentication
     private sign() {
 		ValidationUtils.isTrue(!!this.privateKey, 'privateKey is required for signing');
         const h = this.hash();
-        return Ecdsa.sign(this.privateKey!, h);
+        const sig = Ecdsa.sign(this.privateKey!, h);
+		this.address = Ecdsa.recoverAddress(sig, h);
+		return sig;
     }
 
     getAuthSession(): string {
@@ -43,17 +47,20 @@ export class EcdsaAuthProvider implements AuthenticationProvider, Authentication
     async isValidAsync(headers: any): Promise<[boolean, string]> {
 		const auth = headers['Authorization'] || headers['authorization'];
 		if (!auth) { return [false, 'No authorization header']; }
-		const [prefix, timestamp, sig] = auth.split('/');
+		const [prefix, address, timestamp, sig] = auth.split('/');
 		if (prefix !== 'ecdsa' || !timestamp || !sig) { return [false, 'Not ecdsa']; }
 		ValidationUtils.isTrue(!!this.addressValid, 'addressValid not set');
 		if (!SecurityUtils.timestampInRange(timestamp)) {
 			return [false, 'Expired'];
 		}
 		this.timestamp = Number(timestamp);
-		const address = Ecdsa.recoverAddress(sig, this.hash());
+		const recoveredAddress = Ecdsa.recoverAddress(sig, this.hash());
+		if (address !== recoveredAddress) {
+			return [false, 'Invalid signature'];
+		}
 		const valid = await this.addressValid!(address);
 		if (!valid) {
-			return [false, 'Invalid signature'];
+			return [false, 'Invalid signer'];
 		}
 		this.address = address;
 		return [true, ''];

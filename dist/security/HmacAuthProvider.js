@@ -57,9 +57,10 @@ class HmacAuthProvider {
             if (!this.secret) {
                 return [false, 'Invalid key'];
             }
-            if (!this.hash() === hash) {
+            if (this.hash() !== hash) {
                 return [false, 'Wrong hash'];
             }
+            this.publicKey = pubKey;
             return [true, ''];
         });
     }
