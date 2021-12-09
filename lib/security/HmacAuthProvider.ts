@@ -47,9 +47,10 @@ export class HmacAuthProvider implements AuthenticationProvider, AuthenticationV
 		this.timestamp = Number(timestamp);
 		this.secret = await this.publicToSecret!(pubKey);
 		if (!this.secret) { return [false, 'Invalid key']; }
-		if (!this.hash() === hash) {
+		if (this.hash() !== hash) {
 			return [false, 'Wrong hash'];
 		}
+		this.publicKey = pubKey;
 		return [true, ''];
     }
 
