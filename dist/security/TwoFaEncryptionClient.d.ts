@@ -16,6 +16,7 @@ export declare class TwoFaEncryptionClient implements Injectable {
     }>;
     decrypt(twoFaId: string, twoFa: string, data: EncryptedData): Promise<HexString>;
     serverTimestamp(): Promise<number>;
-    private getTwoFaWrapperKey;
+    private newTwoFaWrapperKey;
+    private getTwoFaWrappedData;
 }
 //# sourceMappingURL=TwoFaEncryptionClient.d.ts.map

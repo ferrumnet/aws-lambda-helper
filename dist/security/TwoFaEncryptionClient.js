@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TwoFaEncryptionClient = void 0;
-const ferrum_crypto_1 = require("ferrum-crypto");
 const ferrum_plumbing_1 = require("ferrum-plumbing");
 const HmacAuthProvider_1 = require("./HmacAuthProvider");
 const DATA_KEY_DELIM = '|**|';
@@ -26,24 +25,27 @@ class TwoFaEncryptionClient {
     __name__() { return 'TwoFaEncryptionClient'; }
     encrypt(twoFaId, twoFa, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const dataKeyId = (0, ferrum_crypto_1.randomBytes)(32);
-            const wrapperKey = yield this.getTwoFaWrapperKey(twoFaId, twoFa, dataKeyId);
-            const encrypted = yield this.cyptor.encryptHex(data, wrapperKey);
+            const wrapperKey = yield this.newTwoFaWrapperKey(twoFaId, twoFa);
+            const encrypted = yield this.cyptor.encryptHex(data, wrapperKey.data);
             return {
                 key: encrypted.key,
-                data: `${dataKeyId}${DATA_KEY_DELIM}${encrypted.data}`,
+                data: `${wrapperKey.dataKeyId}${DATA_KEY_DELIM}${encrypted.data}`,
             };
         });
     }
     newKey() {
         return __awaiter(this, void 0, void 0, function* () {
-            const req = JSON.stringify({ command: 'newTwoFaWrapperKey', data: {}, params: [] });
-            const auth = new HmacAuthProvider_1.HmacAuthProvider(req, this.apiSecret, yield this.serverTimestamp(), this.apiPub);
+            const req = JSON.stringify({ command: 'newTwoFaPair', data: {}, params: [] });
+            const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
+            const headers = auth.asHeader();
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
                 mode: 'cors',
                 body: req,
-                headers: Object.assign({ 'Content-Type': 'application/json' }, auth.asHeader()),
+                headers: {
+                    'Content-Type': 'application/json',
+                    [headers.key]: headers.value,
+                },
             });
             ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.keyId, `Error calling ${this.uri}. No keyId returned`);
             return res;
@@ -54,7 +56,7 @@ class TwoFaEncryptionClient {
             const dataKey = data.key;
             const [dataKeyId, dataData] = data.data.split(DATA_KEY_DELIM, 2);
             ferrum_plumbing_1.ValidationUtils.isTrue(!!dataData, 'Data does not include key Id');
-            const wrapperKey = yield this.getTwoFaWrapperKey(twoFaId, twoFa, dataKeyId);
+            const wrapperKey = yield this.getTwoFaWrappedData(twoFaId, twoFa, dataKeyId);
             return this.cyptor.decryptToHex({ key: dataKey, data: dataData }, wrapperKey);
         });
     }
@@ -76,11 +78,26 @@ class TwoFaEncryptionClient {
             return Number(res);
         });
     }
-    getTwoFaWrapperKey(keyId, twoFa, dataKeyId) {
+    newTwoFaWrapperKey(keyId, twoFa) {
         return __awaiter(this, void 0, void 0, function* () {
-            const req = JSON.stringify({ command: 'getTwoFaWrapperKey',
+            const req = JSON.stringify({ command: 'newTwoFaWrapperKey',
+                data: { keyId, twoFa }, params: [] });
+            const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
+            const res = yield this.fetcher.fetch(this.uri, {
+                method: 'POST',
+                mode: 'cors',
+                body: req,
+                headers: Object.assign({ 'Content-Type': 'application/json' }, auth.asHeader()),
+            });
+            ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.dataKeyId, `Error calling ${this.uri}. No wrapper key returned`);
+            return res;
+        });
+    }
+    getTwoFaWrappedData(keyId, twoFa, dataKeyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const req = JSON.stringify({ command: 'getTwoFaWrappedData',
                 data: { keyId, twoFa, dataKeyId }, params: [] });
-            const auth = new HmacAuthProvider_1.HmacAuthProvider(req, this.apiSecret, yield this.serverTimestamp(), this.apiPub);
+            const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
                 mode: 'cors',

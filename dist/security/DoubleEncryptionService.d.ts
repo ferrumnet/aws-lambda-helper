@@ -1,5 +1,5 @@
 import { EncryptedData, HexString, Injectable } from "ferrum-plumbing";
-import { KmsCryptor } from "lib/aws/KmsCryptor";
+import { KmsCryptor } from "../aws/KmsCryptor";
 import { TwoFaEncryptionClient } from "./TwoFaEncryptionClient";
 export declare class DoubleEncryptiedSecret implements Injectable {
     private ksmCryptor;

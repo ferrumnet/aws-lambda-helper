@@ -1,6 +1,6 @@
 import { CryptoJsKeyProvider, WebNativeCryptor } from 'ferrum-crypto';
 import { ConsoleLogger, Container, LoggerFactory, Module } from 'ferrum-plumbing';
-import { UnifyreBackendProxyService } from 'lib';
+import { UnifyreBackendProxyService } from '../unifyre/UnifyreBackendProxyService';
 import { KmsCryptor } from '../aws/KmsCryptor';
 import { AuthTokenParser } from './AuthTokenParser';
 import { DoubleEncryptiedSecret } from './DoubleEncryptionService';
@@ -20,13 +20,14 @@ export class CryptorModule implements Module {
 		c.register(KmsCryptor, c => new KmsCryptor(c.get('KMS'), this.kmsKeyArn));
 		c.register(DoubleEncryptiedSecret, c => new DoubleEncryptiedSecret(c.get(KmsCryptor), c.get(TwoFaEncryptionClient)));
 		c.register(TwoFaEncryptionClient, c => new TwoFaEncryptionClient(
-			c.get(WebNativeCryptor),
+			c.get(WebNativeCryptor), // Important to not use Kms as KMS will ignore the local keys.
 			this.twoFaApiUri,
 			c.get(LoggerFactory),
 			this.twoFaApiSecret,
 			this.twoFaApiAccess,
 			false,
 		 ));
+		c.register(CryptoJsKeyProvider, c => new CryptoJsKeyProvider());
 		c.register(WebNativeCryptor, c => new WebNativeCryptor(c.get(CryptoJsKeyProvider)));
 		c.register(CryptoJsKeyProvider, c => new CryptoJsKeyProvider());
 		c.register(AuthTokenParser, c => new AuthTokenParser(c.get(UnifyreBackendProxyService),
