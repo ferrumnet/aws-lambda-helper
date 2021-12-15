@@ -30,6 +30,8 @@
     "typescript": "^4.2.3",
     "webpack-babel-jest": "^1.0.4"
   },
+  "files": {
+  },
   "oclif": {
     "commands": "./lib/security/cli",
     "bin": "ferrum-cryptor",
