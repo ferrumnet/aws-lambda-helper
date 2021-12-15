@@ -18,6 +18,7 @@ export declare class LambdaHttpHandlerHelper {
     };
     static ok(body: string): LambdaHttpResponse;
     static error(e: Error): LambdaHttpResponse;
+    static unauthorized(): LambdaHttpResponse;
     static badRequest(): LambdaHttpResponse;
 }
 export declare class HandlerFactory implements Injectable, LifecycleParent<LambdaHttpRequest | LambdaSqsRequest> {

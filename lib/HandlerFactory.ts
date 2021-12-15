@@ -65,8 +65,12 @@ export class LambdaHttpHandlerHelper {
       return response(JSON.stringify({error: e.toString()}), 501);
     }
 
+    static unauthorized() {
+      return response('Unauthorized', 401);
+    }
+
     static badRequest() {
-      return response('Bad request', 401);
+      return response('Bad request', 400);
     }
 }
 
