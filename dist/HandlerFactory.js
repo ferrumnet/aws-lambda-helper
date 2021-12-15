@@ -15,6 +15,19 @@ function handlePreflight(request) {
         };
     }
 }
+function response(body, code) {
+    return {
+        body,
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Headers": "*",
+            "Content-Type": "application/json",
+        },
+        isBase64Encoded: false,
+        statusCode: code,
+    };
+}
 class LambdaHttpHandlerHelper {
     static preProcess(request) {
         const preFlight = handlePreflight(request);
@@ -25,6 +38,15 @@ class LambdaHttpHandlerHelper {
         const authToken = (headers.authorization || headers.Authorization || '').split(' ')[1];
         request.path = request.path || request.url;
         return { authToken };
+    }
+    static ok(body) {
+        return response(body, 200);
+    }
+    static error(e) {
+        return response(JSON.stringify({ error: e.toString() }), 501);
+    }
+    static badRequest() {
+        return response('Bad request', 401);
     }
 }
 exports.LambdaHttpHandlerHelper = LambdaHttpHandlerHelper;

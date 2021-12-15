@@ -16,6 +16,9 @@ export declare class LambdaHttpHandlerHelper {
         authToken?: string;
         preFlight?: any;
     };
+    static ok(body: string): LambdaHttpResponse;
+    static error(e: Error): LambdaHttpResponse;
+    static badRequest(): LambdaHttpResponse;
 }
 export declare class HandlerFactory implements Injectable, LifecycleParent<LambdaHttpRequest | LambdaSqsRequest> {
     private sqsHandler;

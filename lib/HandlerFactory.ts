@@ -31,6 +31,20 @@ function handlePreflight(request: any) {
     }
 }
 
+function response(body: string, code: number) {
+  return {
+    body,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "*",
+        "Content-Type": "application/json",
+      },
+      isBase64Encoded: false,
+      statusCode: code,
+    } as LambdaHttpResponse;
+}
+
 export class LambdaHttpHandlerHelper {
     static preProcess(request: LambdaHttpRequest): {authToken?: string, preFlight?: any} {
         const preFlight = handlePreflight(request);
@@ -41,6 +55,18 @@ export class LambdaHttpHandlerHelper {
         const authToken = (headers.authorization || headers.Authorization  || '').split(' ')[1];
         request.path = request.path || (request as any).url;
         return {authToken};
+    }
+
+    static ok(body: string) {
+      return response(body, 200);
+    }
+
+    static error(e: Error) {
+      return response(JSON.stringify({error: e.toString()}), 501);
+    }
+
+    static badRequest() {
+      return response('Bad request', 401);
     }
 }
 
