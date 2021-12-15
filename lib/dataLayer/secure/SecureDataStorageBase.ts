@@ -50,7 +50,7 @@ export abstract class SecureDataStorageBase<SecT, UnsecT> extends MongooseConnec
         const decStr = await this.cryptor.decryptToHex(enc);
         const unEnc: any = JSON.parse(hexToUtf8(decStr));
         delete res._id;
-        delete res.enc;
+        res.enc = undefined as any;
         return {
             ...res, ...unEnc,
         } as SecT & UnsecT;

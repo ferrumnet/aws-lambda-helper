@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.EcdsaAuthProvider = void 0;
 const ferrum_crypto_1 = require("ferrum-crypto");
 const ferrum_plumbing_1 = require("ferrum-plumbing");
 const SecurityUtils_1 = require("./SecurityUtils");
@@ -30,7 +32,7 @@ class EcdsaAuthProvider {
     hash() {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.postData, 'postData is required for ecdsa hash');
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.timestamp, 'timestamp is required for ecdsa hash');
-        return ferrum_crypto_1.sha256sync((this.url || '') + this.timestamp + '|' + this.postData);
+        return (0, ferrum_crypto_1.sha256sync)((this.url || '') + this.timestamp + '|' + this.postData);
     }
     sign() {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.privateKey, 'privateKey is required for signing');

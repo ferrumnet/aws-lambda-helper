@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -11,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CryptorCli = void 0;
 const command_1 = require("@oclif/command");
 const ferrum_plumbing_1 = require("ferrum-plumbing");
 const LambdaGlobalContext_1 = require("../../LambdaGlobalContext");
@@ -24,12 +26,12 @@ class CryptorCli extends command_1.Command {
             const { args, flags } = this.parse(CryptorCli);
             console.log('Received: ', args, { flags });
             const container = yield LambdaGlobalContext_1.LambdaGlobalContext.container();
-            container.registerModule(new CryptorModule_1.CryptorModule(flags.twoFaApiUrl || process.env.TWOFA_API_URL || ferrum_plumbing_1.panick('TWOFA_API_URL required'), flags.twoFaApiSecretKey || process.env.TWOFA_API_SECRET_KEY || ferrum_plumbing_1.panick('TWOFA_API_SECRET_KEY required'), flags.twoFaApiAccessKey || process.env.TWOFA_API_ACCESS_KEY || ferrum_plumbing_1.panick('TWOFA_API_ACCESS_KEY required'), flags.awsKmsKeyArn || process.env.AWS_KMS_KEY_ARN || ferrum_plumbing_1.panick('AWS_KMS_KEY_ARN required')));
+            container.registerModule(new CryptorModule_1.CryptorModule(flags.twoFaApiUrl || process.env.TWOFA_API_URL || (0, ferrum_plumbing_1.panick)('TWOFA_API_URL required'), flags.twoFaApiSecretKey || process.env.TWOFA_API_SECRET_KEY || (0, ferrum_plumbing_1.panick)('TWOFA_API_SECRET_KEY required'), flags.twoFaApiAccessKey || process.env.TWOFA_API_ACCESS_KEY || (0, ferrum_plumbing_1.panick)('TWOFA_API_ACCESS_KEY required'), flags.awsKmsKeyArn || process.env.AWS_KMS_KEY_ARN || (0, ferrum_plumbing_1.panick)('AWS_KMS_KEY_ARN required')));
             switch (args.command) {
                 case 'encrypt':
                     const dataToEncrypt = flags.secretHex || (flags.secretText ? Buffer.from(flags.secretText, 'utf-8').toString('hex') :
-                        ferrum_plumbing_1.panick('--secretHex or --secretText is required'));
-                    const res = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || ferrum_plumbing_1.panick('--twoFaId is required'), flags.twoFa || ferrum_plumbing_1.panick('--twoFa is required'), dataToEncrypt);
+                        (0, ferrum_plumbing_1.panick)('--secretHex or --secretText is required'));
+                    const res = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), dataToEncrypt);
                     console.log('Data (hex encrypted):');
                     console.log(dataToEncrypt);
                     console.log('Result:');
@@ -43,16 +45,16 @@ class CryptorCli extends command_1.Command {
                     // If something is wrong with random. E.g. all zero, fail. User will not see the 
                     // generated data to know.
                     ferrum_plumbing_1.ValidationUtils.isTrue(!Object.keys(histo).find(c => histo[c] >= 10), 'Weird random. Try again');
-                    const sk = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || ferrum_plumbing_1.panick('--twoFaId is required'), flags.twoFa || ferrum_plumbing_1.panick('--twoFa is required'), secretHex);
+                    const sk = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), secretHex);
                     console.log('Private key generated: *********');
                     console.log('Encrypted private key:');
                     console.log(sk);
                     return;
                 case 'decrypt':
                     const doubleEnc = container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret);
-                    yield doubleEnc.init(flags.twoFaId || ferrum_plumbing_1.panick('--towFaId is required'), flags.twoFa || ferrum_plumbing_1.panick('--twoFa is required'), {
-                        key: flags.enctyptedKey || ferrum_plumbing_1.panick('--encryptedKey is required'),
-                        data: flags.enctyptedData || ferrum_plumbing_1.panick('--encryptedData is required'),
+                    yield doubleEnc.init(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--towFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), {
+                        key: flags.enctyptedKey || (0, ferrum_plumbing_1.panick)('--encryptedKey is required'),
+                        data: flags.enctyptedData || (0, ferrum_plumbing_1.panick)('--encryptedData is required'),
                     });
                     const secret = yield doubleEnc.secret();
                     console.log('Secret received:');
@@ -67,6 +69,7 @@ class CryptorCli extends command_1.Command {
         });
     }
 }
+exports.CryptorCli = CryptorCli;
 CryptorCli.description = 'Ferrum crypto command line';
 CryptorCli.flags = {
     help: command_1.flags.help({ char: 'h' }),
@@ -93,5 +96,4 @@ CryptorCli.args = [
         options: ['new-2fa', 'encrypt', 'decrypt', 'privateKey'],
     }
 ];
-exports.CryptorCli = CryptorCli;
 //# sourceMappingURL=CryptorCli.js.map

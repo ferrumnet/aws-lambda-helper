@@ -1,13 +1,15 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LambdaConfig = void 0;
 // tslint:disable:variable-name
 // @ts-ignore
 const p = process;
@@ -27,7 +29,7 @@ class LambdaConfig {
             const secretId = p.env[LambdaConfig.Envs.AWS_SECRET_ARN];
             if (secretId) {
                 const secret = yield this.secretManager.getSecretValue({ SecretId: secretId }).promise();
-                this.secrets = Object.assign({}, this.secrets, JSON.parse(secret.SecretString));
+                this.secrets = Object.assign(Object.assign({}, this.secrets), JSON.parse(secret.SecretString));
             }
         });
     }
@@ -35,6 +37,7 @@ class LambdaConfig {
         return 'LambdaConfig';
     }
 }
+exports.LambdaConfig = LambdaConfig;
 LambdaConfig.DefaultRegion = 'us-east-1';
 LambdaConfig.Keys = {
     FirebaseJson: 'firebase_json',
@@ -54,5 +57,4 @@ LambdaConfig.Envs = {
     CONFIG_JSON: 'CONFIG_JSON',
     CORS_ALLOW: 'CORS_ALLOW',
 };
-exports.LambdaConfig = LambdaConfig;
 //# sourceMappingURL=LambdaConfig.js.map

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SecurityUtils = void 0;
 const TIMEOUT_MILLIS_BACK = 24 * 3600 * 1000;
 const TIMEOUT_MILLIS_FUTURE = 10 * 1000; // Allow for 10 min time sync error
 class SecurityUtils {

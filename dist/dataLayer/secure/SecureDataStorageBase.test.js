@@ -1,23 +1,26 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TestStorage = exports.TestStorageModel = void 0;
 const SecureDataStorageBase_1 = require("./SecureDataStorageBase");
 const TestDummyCryptorService_1 = require("./TestDummyCryptorService");
-const testDataSchema = SecureDataStorageBase_1.secureDataStorageItemSchemaFactory({});
-exports.TestStorageModel = (c) => c.model('SsmsData', testDataSchema, 'testSsmsData');
+const testDataSchema = (0, SecureDataStorageBase_1.secureDataStorageItemSchemaFactory)({});
+const TestStorageModel = (c) => c.model('SsmsData', testDataSchema, 'testSsmsData');
+exports.TestStorageModel = TestStorageModel;
 class TestStorage extends SecureDataStorageBase_1.SecureDataStorageBase {
     constructor(kms) {
         super(kms);
     }
     initModels(con) {
-        super.setModel(exports.TestStorageModel(con));
+        super.setModel((0, exports.TestStorageModel)(con));
     }
 }
 exports.TestStorage = TestStorage;

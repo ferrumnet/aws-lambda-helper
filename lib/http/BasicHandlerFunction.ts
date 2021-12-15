@@ -27,7 +27,7 @@ export class BasicHandlerFunction {
         } catch (e) {
             console.error(e);
             return {
-                body: e.message,
+                body: (e as Error).message,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Accept-Encoding, Accept-Language, Authorization, Host',

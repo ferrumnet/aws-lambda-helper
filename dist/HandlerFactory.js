@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HandlerFactory = exports.LambdaHttpHandlerHelper = void 0;
 function handlePreflight(request) {
     if (request.method === 'OPTIONS' || request.httpMethod === 'OPTIONS') {
         return {
@@ -45,7 +46,7 @@ class HandlerFactory {
             throw new Error(`Trying to getLifecycleContext, while handing ${this.hType} request but handler has` +
                 ` no 'lastRequest' field. Make sure your handler implements LastHandledRequest and sets 'lastRequest' in the handle method`);
         }
-        return { context: Object.assign({}, handler.lastRequest, { headers: {} }) };
+        return { context: Object.assign(Object.assign({}, handler.lastRequest), { headers: {} }) };
     }
     __name__() {
         return 'HandlerFactory';
