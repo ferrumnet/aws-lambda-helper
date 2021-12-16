@@ -41,5 +41,3 @@ for f in $to_copy_bin; do
     echo Copying $f to ${1%/}/
     cp $base/bin/${f} ${1%/}/bin/
 done
-
-

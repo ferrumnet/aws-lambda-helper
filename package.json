@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "./node_modules/.bin/jest"
+    "test": "./node_modules/.bin/jest",
+    "cryptor": "npx webpack"
   },
   "author": "",
   "license": "ISC",
@@ -28,20 +29,15 @@
     "tslint": "^5.0.0",
     "tslint-config-airbnb-base": "^0.3.0",
     "typescript": "^4.2.3",
-    "webpack-babel-jest": "^1.0.4"
+    "webpack": "^4.36.1",
+    "webpack-babel-jest": "^1.0.4",
+    "webpack-cli": "^4.9.1"
   },
   "files": [],
-  "oclif": {
-    "commands": "./lib/security/cli",
-    "bin": "ferrum-cryptor",
-    "plugins": [
-      "@oclif/plugin-help"
-    ]
-  },
   "dependencies": {
-    "@oclif/command": "^1.8.0",
     "aws-sdk": "2.903.0",
     "big.js": "^5.2.2",
+    "commander": "^8.3.0",
     "ethers": "^5.4.1",
     "ferrum-crypto": "git+https://github.com/ferrumnet/ferrum-crypto.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",

@@ -1,11 +1,11 @@
-import {Command, flags} from '@oclif/command';
-import { Container, EncryptedData, panick, TypeUtils, ValidationUtils } from 'ferrum-plumbing';
+import { Container, panick, ValidationUtils } from 'ferrum-plumbing';
 import { LambdaGlobalContext } from '../../LambdaGlobalContext';
 import { CryptorModule } from '../CryptorModule';
 import { DoubleEncryptiedSecret } from '../DoubleEncryptionService';
 import { TwoFaEncryptionClient } from '../TwoFaEncryptionClient';
 import crypto from 'crypto';
-import { SecurityUtils } from '../SecurityUtils';
+import { Command } from 'commander';
+
 
 async function decryptToHex(container: Container, flags: any) {
 	const doubleEnc = container.get<DoubleEncryptiedSecret>(DoubleEncryptiedSecret);
@@ -17,37 +17,32 @@ async function decryptToHex(container: Container, flags: any) {
 	return await doubleEnc.secret();
 }
 
-export class CryptorCli extends Command {
+export class CryptorCli {
 	static description = 'Ferrum crypto command line';
 
-	static flags = {
-		help: flags.help({char: 'h'}),
-		twoFaId: flags.string({description: '2fa id'}),
-		twoFa: flags.string({description: '2fa (6 digit number) from google authenticator'}),
-		secretHex: flags.string({description: 'The secret in hex'}),
-		secretText: flags.string({description: 'The secret in plain text'}),
-		encryptedData: flags.string({description: 'Encrypted data, data field'}),
-		awsSecretKey: flags.string({description: 'The secret in plain text'}),
-		awsAccessKeyId: flags.string({description: 'AWS_ACCESS_KEY_ID or env'}),
-		awsSecretAccessKeyId: flags.string({description: 'AWS_SECRET_ACCESS_KEY_ID or env'}),
-		awsKmsKeyArn: flags.string({description: 'Kms key ARN to be used for crypto: AWS_KMS_KEY_ARN env'}),
-		awsDefaultRegion: flags.string({description: 'AWS_DEFAULT_REGION env'}),
-		twoFaApiUrl: flags.string({description: 'TWOFA_API_URL env'}),
-		twoFaApiSecretKey: flags.string({description: 'TWOFA_API_SECRET_KEY env'}),
-		twoFaApiAccessKey: flags.string({description: 'TWOFA_API_ACCESS_KEY env'}),
+	static prepCommand(c: Command) {
+		c
+			.description('Ferrum Cryptor command line')
+
+			.option('-i, --two-fa-id <type>', '2fa id ')
+			.option('-t, --two-fa <type>', '2fa token')
+			.option('-e, --secret-hex <type>', 'The secret in hex')
+			.option('-u, --secret-text <type>', 'The secret in plain text')
+			.option('-d, --encrypted-data <type>', 'Encrypted data (hex encoded)')
+			.option('--aws-kms-key-arn <type>', 'Kms key ARN to be used for crypto: AWS_KMS_KEY_ARN env')
+			.option('--two-fa-api-url <type>', 'Endpoint for 2f api or TWOFA_API_URL env')
+			.option('--two-fa-api-access-key <type>', 'TWOFA_API_ACCESS_KEY env')
+			.option('--two-fa-api-secret-key <type>', 'TWOFA_API_SECRET_KEY env')
 	}
 
-	static args = [
-		{
-			name: 'command',
-			require: true,
-			description: 'Crypto commands',
-			options: ['new-2fa', 'encrypt', 'decryptHex', 'decryptText', 'privateKey'],
-		}
-	]
+	static args = ['new-2fa', 'encrypt', 'decryptHex', 'decryptText', 'privateKey', 'print-config-template'];
 
-	async run() {
-		const {args, flags} = this.parse(CryptorCli);
+	static async run(c: Command) {
+		c.parse(process.argv);
+		const flags = c.opts();
+		const command = c.args[0];
+		// console.log("OPS", flags);
+
     	const container = await LambdaGlobalContext.container();
 		container.registerModule(new CryptorModule(
 			flags.twoFaApiUrl || process.env.TWOFA_API_URL || panick('TWOFA_API_URL required') as any,
@@ -57,7 +52,7 @@ export class CryptorCli extends Command {
 		));
 
 		try {
-			switch(args.command) {
+			switch(command) {
 				case 'encrypt':
 					const dataToEncrypt = flags.secretHex || (flags.secretText ? Buffer.from(flags.secretText!, 'utf-8').toString('hex') :
 						panick('--secretHex or --secretText is required') as any);
@@ -105,9 +100,27 @@ export class CryptorCli extends Command {
 					console.log('Two fa keys:');
 					console.log(keys);
 					return;
+				case 'print-config-template':
+					console.log(CONFIG_TEMPLATE);
+					return;
+				default:
+					console.log('Invalid arguments');
+					console.log('Supported: ', CryptorCli.args);
 			}
 		} catch (e) {
 			console.error(e as Error);
 		}
 	}
 }
+
+const CONFIG_TEMPLATE = `
+Set the following environment variables.
+
+export AWS_KMS_KEY_ARN=
+export TWOFA_API_ACCESS_KEY=
+export TWOFA_API_SECRET_KEY=
+export TWOFA_API_URL=
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+export AWS_DEFAULT_REGION=us-east-2
+`

@@ -88,11 +88,15 @@ class TwoFaEncryptionClient {
             const req = JSON.stringify({ command: 'newTwoFaWrapperKey',
                 data: { keyId, twoFa }, params: [] });
             const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
+            const headers = auth.asHeader();
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
                 // mode: 'cors',
                 body: req,
-                headers: Object.assign({ 'Content-Type': 'application/json' }, auth.asHeader()),
+                headers: {
+                    'Content-Type': 'application/json',
+                    [headers.key]: headers.value,
+                },
             });
             ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.dataKeyId, `Error calling ${this.uri}. No wrapper key returned`);
             return res;
@@ -103,11 +107,15 @@ class TwoFaEncryptionClient {
             const req = JSON.stringify({ command: 'getTwoFaWrappedData',
                 data: { keyId, twoFa, dataKeyId }, params: [] });
             const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
+            const headers = auth.asHeader();
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
                 mode: 'cors',
                 body: req,
-                headers: Object.assign({ 'Content-Type': 'application/json' }, auth.asHeader()),
+                headers: {
+                    'Content-Type': 'application/json',
+                    [headers.key]: headers.value,
+                },
             });
             ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.secret, `Error calling ${this.uri}. No wrapper key returned`);
             return res.secret;
