@@ -78,13 +78,14 @@ export class TwoFaEncryptionClient implements Injectable {
 		const req = JSON.stringify({ command: 'newTwoFaWrapperKey',
 			data: { keyId, twoFa }, params: [] } as JsonRpcRequest);
 		const auth = new HmacAuthProvider('', req, await this.serverTimestamp(), this.apiSecret, this.apiPub);
+		const headers = auth.asHeader();
 		const res = await this.fetcher.fetch<{ dataKeyId: string, data: string }>(this.uri, {
                 method: 'POST',
                 // mode: 'cors',
                 body: req,
                 headers: {
                     'Content-Type': 'application/json',
-					...auth.asHeader(),
+					[headers.key]: headers.value,
                 },
             });
 		ValidationUtils.isTrue(!!res && !!res.dataKeyId, `Error calling ${this.uri}. No wrapper key returned`);
@@ -95,13 +96,14 @@ export class TwoFaEncryptionClient implements Injectable {
 		const req = JSON.stringify({ command: 'getTwoFaWrappedData',
 			data: { keyId, twoFa, dataKeyId }, params: [] } as JsonRpcRequest);
 		const auth = new HmacAuthProvider('', req, await this.serverTimestamp(), this.apiSecret, this.apiPub);
+		const headers = auth.asHeader();
 		const res = await this.fetcher.fetch<{secret: string}>(this.uri, {
                 method: 'POST',
                 mode: 'cors',
                 body: req,
                 headers: {
                     'Content-Type': 'application/json',
-					...auth.asHeader(),
+					[headers.key]: headers.value,
                 },
             });
 		ValidationUtils.isTrue(!!res && !!res.secret, `Error calling ${this.uri}. No wrapper key returned`);
