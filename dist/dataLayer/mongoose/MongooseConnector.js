@@ -12,9 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MongooseConnection = void 0;
 const mongoose_1 = require("mongoose");
 const ferrum_plumbing_1 = require("ferrum-plumbing");
-(0, mongoose_1.set)('useFindAndModify', false);
-(0, mongoose_1.set)('useNewUrlParser', true);
-(0, mongoose_1.set)('useUnifiedTopology', true);
 class MongooseConnection {
     constructor() {
         this.isInit = false;

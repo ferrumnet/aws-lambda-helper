@@ -15,7 +15,7 @@ const mongoose_1 = require("mongoose");
 const ferrum_plumbing_1 = require("ferrum-plumbing");
 const ferrum_crypto_1 = require("ferrum-crypto");
 function secureDataStorageItemSchemaFactory(unsecSchema) {
-    return new mongoose_1.Schema(Object.assign({ key: String, createdAt: Number, lastUpdatedAt: Number, enc: Object }, unsecSchema));
+    return new mongoose_1.Schema(Object.assign({ key: String, createdAt: Number, lastUpdatedAt: Number, enc: { key: String, data: String, } }, unsecSchema));
 }
 exports.secureDataStorageItemSchemaFactory = secureDataStorageItemSchemaFactory;
 class SecureDataStorageBase extends MongooseConnector_1.MongooseConnection {

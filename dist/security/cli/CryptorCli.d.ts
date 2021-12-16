@@ -7,8 +7,7 @@ export declare class CryptorCli extends Command {
         twoFa: flags.IOptionFlag<string | undefined>;
         secretHex: flags.IOptionFlag<string | undefined>;
         secretText: flags.IOptionFlag<string | undefined>;
-        enctyptedKey: flags.IOptionFlag<string | undefined>;
-        enctyptedData: flags.IOptionFlag<string | undefined>;
+        encryptedData: flags.IOptionFlag<string | undefined>;
         awsSecretKey: flags.IOptionFlag<string | undefined>;
         awsAccessKeyId: flags.IOptionFlag<string | undefined>;
         awsSecretAccessKeyId: flags.IOptionFlag<string | undefined>;

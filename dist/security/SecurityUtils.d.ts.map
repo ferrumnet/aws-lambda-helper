@@ -1,1 +1,1 @@
-{"version":3,"file":"SecurityUtils.d.ts","sourceRoot":"","sources":["../../lib/security/SecurityUtils.ts"],"names":[],"mappings":"AAIA,qBAAa,aAAa;IACtB,MAAM,CAAC,gBAAgB,CAAC,CAAC,EAAE,MAAM,GAAG,MAAM;CAM7C"}
+{"version":3,"file":"SecurityUtils.d.ts","sourceRoot":"","sources":["../../lib/security/SecurityUtils.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,SAAS,EAAmB,MAAM,iBAAiB,CAAC;AAK5E,qBAAa,aAAa;IACtB,MAAM,CAAC,gBAAgB,CAAC,CAAC,EAAE,MAAM,GAAG,MAAM;IAO1C,MAAM,CAAC,qBAAqB,CAAC,CAAC,EAAE,aAAa,GAAG,SAAS;IAOzD,MAAM,CAAC,uBAAuB,CAAC,CAAC,EAAE,SAAS,GAAG,aAAa;CAQ9D"}

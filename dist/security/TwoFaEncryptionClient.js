@@ -12,9 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TwoFaEncryptionClient = void 0;
 const ferrum_plumbing_1 = require("ferrum-plumbing");
 const HmacAuthProvider_1 = require("./HmacAuthProvider");
-const DATA_KEY_DELIM = '|**|';
+const SecurityUtils_1 = require("./SecurityUtils");
 class TwoFaEncryptionClient {
-    constructor(cyptor, uri, logFac, apiSecret, apiPub, queryServerTimestamp) {
+    constructor(cyptor, // NOTE: This must be a local cryptor. Do not use KMS or the 2fa key will be ignored
+    uri, logFac, apiSecret, apiPub, queryServerTimestamp) {
         this.cyptor = cyptor;
         this.uri = uri;
         this.apiSecret = apiSecret;
@@ -27,13 +28,15 @@ class TwoFaEncryptionClient {
         return __awaiter(this, void 0, void 0, function* () {
             const wrapperKey = yield this.newTwoFaWrapperKey(twoFaId, twoFa);
             const encrypted = yield this.cyptor.encryptHex(data, wrapperKey.data);
+            const wrapDataKeyToData = SecurityUtils_1.SecurityUtils.encryptedDataToString({ key: wrapperKey.dataKeyId, data: encrypted.data });
             return {
                 key: encrypted.key,
-                data: `${wrapperKey.dataKeyId}${DATA_KEY_DELIM}${encrypted.data}`,
+                data: wrapDataKeyToData,
             };
         });
     }
     newKey() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const req = JSON.stringify({ command: 'newTwoFaPair', data: {}, params: [] });
             const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
@@ -47,14 +50,16 @@ class TwoFaEncryptionClient {
                     [headers.key]: headers.value,
                 },
             });
-            ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.keyId, `Error calling ${this.uri}. No keyId returned`);
-            return res;
+            ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!((_a = res === null || res === void 0 ? void 0 : res.seed) === null || _a === void 0 ? void 0 : _a.userId), `Error calling ${this.uri}. No keyId returned`);
+            return { keyId: res.seed.userId, secret: res.seed.secret };
         });
     }
     decrypt(twoFaId, twoFa, data) {
         return __awaiter(this, void 0, void 0, function* () {
             const dataKey = data.key;
-            const [dataKeyId, dataData] = data.data.split(DATA_KEY_DELIM, 2);
+            const unrwapDataKey = SecurityUtils_1.SecurityUtils.encryptedDataFromString(data.data);
+            const dataKeyId = unrwapDataKey.key;
+            const dataData = unrwapDataKey.data;
             ferrum_plumbing_1.ValidationUtils.isTrue(!!dataData, 'Data does not include key Id');
             const wrapperKey = yield this.getTwoFaWrappedData(twoFaId, twoFa, dataKeyId);
             return this.cyptor.decryptToHex({ key: dataKey, data: dataData }, wrapperKey);
@@ -104,8 +109,8 @@ class TwoFaEncryptionClient {
                 body: req,
                 headers: Object.assign({ 'Content-Type': 'application/json' }, auth.asHeader()),
             });
-            ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.wrapperKey, `Error calling ${this.uri}. No wrapper key returned`);
-            return res.wrapperKey;
+            ferrum_plumbing_1.ValidationUtils.isTrue(!!res && !!res.secret, `Error calling ${this.uri}. No wrapper key returned`);
+            return res.secret;
         });
     }
 }

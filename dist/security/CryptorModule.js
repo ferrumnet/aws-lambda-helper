@@ -30,7 +30,9 @@ class CryptorModule {
             c.register(ferrum_plumbing_1.LoggerFactory, () => new ferrum_plumbing_1.LoggerFactory(n => new ferrum_plumbing_1.ConsoleLogger(n)));
             c.register(KmsCryptor_1.KmsCryptor, c => new KmsCryptor_1.KmsCryptor(c.get('KMS'), this.kmsKeyArn));
             c.register(DoubleEncryptionService_1.DoubleEncryptiedSecret, c => new DoubleEncryptionService_1.DoubleEncryptiedSecret(c.get(KmsCryptor_1.KmsCryptor), c.get(TwoFaEncryptionClient_1.TwoFaEncryptionClient)));
-            c.register(TwoFaEncryptionClient_1.TwoFaEncryptionClient, c => new TwoFaEncryptionClient_1.TwoFaEncryptionClient(c.get(ferrum_crypto_1.WebNativeCryptor), this.twoFaApiUri, c.get(ferrum_plumbing_1.LoggerFactory), this.twoFaApiSecret, this.twoFaApiAccess, false));
+            c.register(TwoFaEncryptionClient_1.TwoFaEncryptionClient, c => new TwoFaEncryptionClient_1.TwoFaEncryptionClient(c.get(ferrum_crypto_1.WebNativeCryptor), // Important to not use Kms as KMS will ignore the local keys.
+            this.twoFaApiUri, c.get(ferrum_plumbing_1.LoggerFactory), this.twoFaApiSecret, this.twoFaApiAccess, false));
+            c.register(ferrum_crypto_1.CryptoJsKeyProvider, c => new ferrum_crypto_1.CryptoJsKeyProvider());
             c.register(ferrum_crypto_1.WebNativeCryptor, c => new ferrum_crypto_1.WebNativeCryptor(c.get(ferrum_crypto_1.CryptoJsKeyProvider)));
             c.register(ferrum_crypto_1.CryptoJsKeyProvider, c => new ferrum_crypto_1.CryptoJsKeyProvider());
             c.register(AuthTokenParser_1.AuthTokenParser, c => new AuthTokenParser_1.AuthTokenParser(c.get(UnifyreBackendProxyService_1.UnifyreBackendProxyService), c.get(HmacApiKeyStore_1.HmacApiKeyStore)));

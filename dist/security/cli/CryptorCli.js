@@ -20,51 +20,64 @@ const CryptorModule_1 = require("../CryptorModule");
 const DoubleEncryptionService_1 = require("../DoubleEncryptionService");
 const TwoFaEncryptionClient_1 = require("../TwoFaEncryptionClient");
 const crypto_1 = __importDefault(require("crypto"));
+function decryptToHex(container, flags) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const doubleEnc = container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret);
+        yield doubleEnc.init(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), flags.encryptedData || (0, ferrum_plumbing_1.panick)('--encryptedData is required'));
+        return yield doubleEnc.secret();
+    });
+}
 class CryptorCli extends command_1.Command {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             const { args, flags } = this.parse(CryptorCli);
-            console.log('Received: ', args, { flags });
             const container = yield LambdaGlobalContext_1.LambdaGlobalContext.container();
             container.registerModule(new CryptorModule_1.CryptorModule(flags.twoFaApiUrl || process.env.TWOFA_API_URL || (0, ferrum_plumbing_1.panick)('TWOFA_API_URL required'), flags.twoFaApiSecretKey || process.env.TWOFA_API_SECRET_KEY || (0, ferrum_plumbing_1.panick)('TWOFA_API_SECRET_KEY required'), flags.twoFaApiAccessKey || process.env.TWOFA_API_ACCESS_KEY || (0, ferrum_plumbing_1.panick)('TWOFA_API_ACCESS_KEY required'), flags.awsKmsKeyArn || process.env.AWS_KMS_KEY_ARN || (0, ferrum_plumbing_1.panick)('AWS_KMS_KEY_ARN required')));
-            switch (args.command) {
-                case 'encrypt':
-                    const dataToEncrypt = flags.secretHex || (flags.secretText ? Buffer.from(flags.secretText, 'utf-8').toString('hex') :
-                        (0, ferrum_plumbing_1.panick)('--secretHex or --secretText is required'));
-                    const res = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), dataToEncrypt);
-                    console.log('Data (hex encrypted):');
-                    console.log(dataToEncrypt);
-                    console.log('Result:');
-                    console.log(res);
-                    return;
-                case 'privateKey':
-                    const secretHex = crypto_1.default.randomBytes(32).toString('hex');
-                    ferrum_plumbing_1.ValidationUtils.isTrue(secretHex.length === 64, 'Bad randomHex size!');
-                    const histo = {};
-                    secretHex.split('').forEach(c => histo[c] = (histo[c] || 0) + 1);
-                    // If something is wrong with random. E.g. all zero, fail. User will not see the 
-                    // generated data to know.
-                    ferrum_plumbing_1.ValidationUtils.isTrue(!Object.keys(histo).find(c => histo[c] >= 10), 'Weird random. Try again');
-                    const sk = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), secretHex);
-                    console.log('Private key generated: *********');
-                    console.log('Encrypted private key:');
-                    console.log(sk);
-                    return;
-                case 'decrypt':
-                    const doubleEnc = container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret);
-                    yield doubleEnc.init(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--towFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), {
-                        key: flags.enctyptedKey || (0, ferrum_plumbing_1.panick)('--encryptedKey is required'),
-                        data: flags.enctyptedData || (0, ferrum_plumbing_1.panick)('--encryptedData is required'),
-                    });
-                    const secret = yield doubleEnc.secret();
-                    console.log('Secret received:');
-                    console.log(secret);
-                    return;
-                case 'new-2fa':
-                    const keys = yield container.get(TwoFaEncryptionClient_1.TwoFaEncryptionClient).newKey();
-                    console.log('Two fa keys:');
-                    console.log(keys);
-                    return;
+            try {
+                switch (args.command) {
+                    case 'encrypt':
+                        const dataToEncrypt = flags.secretHex || (flags.secretText ? Buffer.from(flags.secretText, 'utf-8').toString('hex') :
+                            (0, ferrum_plumbing_1.panick)('--secretHex or --secretText is required'));
+                        ferrum_plumbing_1.ValidationUtils.isTrue(dataToEncrypt.length % 2 === 0, 'Bad hex: ' + dataToEncrypt);
+                        const res = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), dataToEncrypt);
+                        console.log('Data (hex encrypted):');
+                        console.log(dataToEncrypt);
+                        console.log('Result:');
+                        console.log(res);
+                        return;
+                    case 'privateKey':
+                        const secretHex = crypto_1.default.randomBytes(32).toString('hex');
+                        ferrum_plumbing_1.ValidationUtils.isTrue(secretHex.length === 64, 'Bad randomHex size!');
+                        const histo = {};
+                        secretHex.split('').forEach(c => histo[c] = (histo[c] || 0) + 1);
+                        // If something is wrong with random. E.g. all zero, fail. User will not see the 
+                        // generated data to know.
+                        ferrum_plumbing_1.ValidationUtils.isTrue(!Object.keys(histo).find(c => histo[c] >= 10), 'Weird random. Try again');
+                        const sk = yield container.get(DoubleEncryptionService_1.DoubleEncryptiedSecret).encrypt(flags.twoFaId || (0, ferrum_plumbing_1.panick)('--twoFaId is required'), flags.twoFa || (0, ferrum_plumbing_1.panick)('--twoFa is required'), secretHex);
+                        console.log('Private key generated: *********');
+                        console.log('Encrypted private key:');
+                        console.log(sk);
+                        return;
+                    case 'decryptText':
+                        const secretHexDec = yield decryptToHex(container, flags);
+                        const secretText = Buffer.from(secretHexDec, 'hex').toString('utf-8');
+                        console.log('Secret received:');
+                        console.log(secretText);
+                        return;
+                    case 'decryptHex':
+                        const secret = yield decryptToHex(container, flags);
+                        console.log('Secret received:');
+                        console.log(secret);
+                        return;
+                    case 'new-2fa':
+                        const keys = yield container.get(TwoFaEncryptionClient_1.TwoFaEncryptionClient).newKey();
+                        console.log('Two fa keys:');
+                        console.log(keys);
+                        return;
+                }
+            }
+            catch (e) {
+                console.error(e);
             }
         });
     }
@@ -77,8 +90,7 @@ CryptorCli.flags = {
     twoFa: command_1.flags.string({ description: '2fa (6 digit number) from google authenticator' }),
     secretHex: command_1.flags.string({ description: 'The secret in hex' }),
     secretText: command_1.flags.string({ description: 'The secret in plain text' }),
-    enctyptedKey: command_1.flags.string({ description: 'Encrypted data key field' }),
-    enctyptedData: command_1.flags.string({ description: 'Encrypted data, data field' }),
+    encryptedData: command_1.flags.string({ description: 'Encrypted data, data field' }),
     awsSecretKey: command_1.flags.string({ description: 'The secret in plain text' }),
     awsAccessKeyId: command_1.flags.string({ description: 'AWS_ACCESS_KEY_ID or env' }),
     awsSecretAccessKeyId: command_1.flags.string({ description: 'AWS_SECRET_ACCESS_KEY_ID or env' }),
@@ -93,7 +105,7 @@ CryptorCli.args = [
         name: 'command',
         require: true,
         description: 'Crypto commands',
-        options: ['new-2fa', 'encrypt', 'decrypt', 'privateKey'],
+        options: ['new-2fa', 'encrypt', 'decryptHex', 'decryptText', 'privateKey'],
     }
 ];
 //# sourceMappingURL=CryptorCli.js.map

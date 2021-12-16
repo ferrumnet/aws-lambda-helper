@@ -12,13 +12,13 @@ export interface SecureDataStorageItem {
 }
 
 export function secureDataStorageItemSchemaFactory<T>(unsecSchema: T) {
-    return new Schema<SecureDataStorageItem & T>({
+    return new Schema<SecureDataStorageItem & T & Document>({
         key: String,
         createdAt: Number,
         lastUpdatedAt: Number,
-        enc: Object,
+        enc: { key: String, data: String, },
         ...unsecSchema
-    });
+    } as any);
 }
 
 export abstract class SecureDataStorageBase<SecT, UnsecT> extends MongooseConnection implements JsonStorage {

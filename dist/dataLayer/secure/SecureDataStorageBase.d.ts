@@ -8,7 +8,7 @@ export interface SecureDataStorageItem {
     lastUpdatedAt: number;
     enc: EncryptedData;
 }
-export declare function secureDataStorageItemSchemaFactory<T>(unsecSchema: T): Schema<SecureDataStorageItem & T>;
+export declare function secureDataStorageItemSchemaFactory<T>(unsecSchema: T): Schema<SecureDataStorageItem & T & Document<any, any, any>, Model<SecureDataStorageItem & T & Document<any, any, any>, any, any, any>, any>;
 export declare abstract class SecureDataStorageBase<SecT, UnsecT> extends MongooseConnection implements JsonStorage {
     private cryptor;
     private model;
