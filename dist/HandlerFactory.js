@@ -35,7 +35,8 @@ class LambdaHttpHandlerHelper {
             return { preFlight };
         }
         const headers = request.headers;
-        const authToken = (headers.authorization || headers.Authorization || '').split(' ')[1];
+        const authToken = (headers.authorization || headers.Authorization ||
+            headers['X-Authorization'] || headers['x-authorization'] || '').split(' ')[1];
         request.path = request.path || request.url;
         return { authToken };
     }

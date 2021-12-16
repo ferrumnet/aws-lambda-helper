@@ -28,7 +28,7 @@ export class AuthTokenParser implements Injectable {
 
   async authTokens(request: LambdaHttpRequest): Promise<AuthTokens> {
     const headers = request.headers as any;
-    const token = headers.authorization || headers.Authorization || "";
+    const token = headers.authorization || headers.Authorization || headers['X-Authorization'] || headers['x-authorization'] || "";
     const authType = HttpRequestProcessor.authType(token);
     // Get extra auth data
     if (authType === "hmac") {

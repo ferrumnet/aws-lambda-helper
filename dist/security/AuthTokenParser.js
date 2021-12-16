@@ -25,7 +25,7 @@ class AuthTokenParser {
     authTokens(request) {
         return __awaiter(this, void 0, void 0, function* () {
             const headers = request.headers;
-            const token = headers.authorization || headers.Authorization || "";
+            const token = headers.authorization || headers.Authorization || headers['X-Authorization'] || headers['x-authorization'] || "";
             const authType = HttpRequestProcessor_1.HttpRequestProcessor.authType(token);
             // Get extra auth data
             if (authType === "hmac") {
