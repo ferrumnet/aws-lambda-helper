@@ -26,7 +26,7 @@ class HmacAuthProvider {
         this.publicToSecret = publicToSecret;
     }
     asHeader() {
-        return { key: 'Authorization', value: `hmac/${this.publicKey}/${this.timestamp}/${this.hash()}`, };
+        return { key: 'X-Authorization', value: `hmac/${this.publicKey}/${this.timestamp}/${this.hash()}`, };
     }
     hash() {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.secret, 'secret is required for hmac');
@@ -42,7 +42,7 @@ class HmacAuthProvider {
     }
     isValidAsync(headers) {
         return __awaiter(this, void 0, void 0, function* () {
-            const auth = headers['Authorization'] || headers['authorization'];
+            const auth = headers['X-Authorization'] || headers['x-authorization'];
             if (!auth) {
                 return [false, 'No auth header'];
             }

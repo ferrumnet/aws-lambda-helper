@@ -36,7 +36,7 @@ export class TwoFaEncryptionClient implements Injectable {
 		const res = await this.fetcher.fetch<{  seed: { userId: string, secret: string, qrCode: string, totpUrl: string, createdAt: number } 
 		}>(this.uri, {
                 method: 'POST',
-                mode: 'cors',
+                // mode: 'cors',
                 body: req,
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export class TwoFaEncryptionClient implements Injectable {
 		const auth = new HmacAuthProvider('', req, await this.serverTimestamp(), this.apiSecret, this.apiPub);
 		const res = await this.fetcher.fetch<{ dataKeyId: string, data: string }>(this.uri, {
                 method: 'POST',
-                mode: 'cors',
+                // mode: 'cors',
                 body: req,
                 headers: {
                     'Content-Type': 'application/json',

@@ -27,7 +27,7 @@ class EcdsaAuthProvider {
     asHeader() {
         const sig = this.sign();
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.address, 'EcdsaAuthProvider: No address');
-        return { key: 'Authorization', value: `ecdsa/${this.address}/${this.timestamp}/${sig}` };
+        return { key: 'X-Authorization', value: `ecdsa/${this.address}/${this.timestamp}/${sig}` };
     }
     hash() {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.postData, 'postData is required for ecdsa hash');
@@ -49,7 +49,7 @@ class EcdsaAuthProvider {
     }
     isValidAsync(headers) {
         return __awaiter(this, void 0, void 0, function* () {
-            const auth = headers['Authorization'] || headers['authorization'];
+            const auth = headers['X-Authorization'] || headers['x-authorization'];
             if (!auth) {
                 return [false, 'No authorization header'];
             }

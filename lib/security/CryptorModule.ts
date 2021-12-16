@@ -19,7 +19,7 @@ export class CryptorModule implements Module {
 		c.register(LoggerFactory, () => new LoggerFactory(n => new ConsoleLogger(n)));
 		c.register(KmsCryptor, c => new KmsCryptor(c.get('KMS'), this.kmsKeyArn));
 		c.register(DoubleEncryptiedSecret, c => new DoubleEncryptiedSecret(c.get(KmsCryptor), c.get(TwoFaEncryptionClient)));
-		c.register(TwoFaEncryptionClient, c => new TwoFaEncryptionClient(
+		c.registerSingleton(TwoFaEncryptionClient, c => new TwoFaEncryptionClient(
 			c.get(WebNativeCryptor), // Important to not use Kms as KMS will ignore the local keys.
 			this.twoFaApiUri,
 			c.get(LoggerFactory),

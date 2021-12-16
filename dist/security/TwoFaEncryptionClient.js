@@ -43,7 +43,7 @@ class TwoFaEncryptionClient {
             const headers = auth.asHeader();
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
-                mode: 'cors',
+                // mode: 'cors',
                 body: req,
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ class TwoFaEncryptionClient {
             const auth = new HmacAuthProvider_1.HmacAuthProvider('', req, yield this.serverTimestamp(), this.apiSecret, this.apiPub);
             const res = yield this.fetcher.fetch(this.uri, {
                 method: 'POST',
-                mode: 'cors',
+                // mode: 'cors',
                 body: req,
                 headers: Object.assign({ 'Content-Type': 'application/json' }, auth.asHeader()),
             });

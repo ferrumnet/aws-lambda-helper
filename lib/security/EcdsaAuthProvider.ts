@@ -19,7 +19,7 @@ export class EcdsaAuthProvider implements AuthenticationProvider, Authentication
     asHeader(): { key: string; value: string } {
 		const sig = this.sign();
 		ValidationUtils.isTrue(!!this.address, 'EcdsaAuthProvider: No address');
-        return {key: 'Authorization', value: `ecdsa/${this.address}/${this.timestamp}/${sig}`};
+        return {key: 'X-Authorization', value: `ecdsa/${this.address}/${this.timestamp}/${sig}`};
     }
 
 	private hash() {
@@ -45,7 +45,7 @@ export class EcdsaAuthProvider implements AuthenticationProvider, Authentication
     }
 
     async isValidAsync(headers: any): Promise<[boolean, string]> {
-		const auth = headers['Authorization'] || headers['authorization'];
+		const auth = headers['X-Authorization'] || headers['x-authorization'];
 		if (!auth) { return [false, 'No authorization header']; }
 		const [prefix, address, timestamp, sig] = auth.split('/');
 		if (prefix !== 'ecdsa' || !timestamp || !sig) { return [false, 'Not ecdsa']; }

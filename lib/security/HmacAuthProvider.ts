@@ -17,7 +17,7 @@ export class HmacAuthProvider implements AuthenticationProvider, AuthenticationV
 	}
 
     asHeader(): { key: string; value: string } {
-        return { key: 'Authorization', value: `hmac/${this.publicKey}/${this.timestamp}/${this.hash()}`, };
+        return { key: 'X-Authorization', value: `hmac/${this.publicKey}/${this.timestamp}/${this.hash()}`, };
     }
 
 	private hash() {
@@ -36,7 +36,7 @@ export class HmacAuthProvider implements AuthenticationProvider, AuthenticationV
     }
 
     async isValidAsync(headers: any): Promise<[boolean, string]> {
-		const auth = headers['Authorization'] || headers['authorization'];
+		const auth = headers['X-Authorization'] || headers['x-authorization'];
 		if (!auth) { return [false, 'No auth header']; }
 		const [prefix, pubKey, timestamp, hash] = auth.split('/');
 		if (prefix !== 'hmac' || !pubKey || !hash) { return [false, 'Not hmac']; }
