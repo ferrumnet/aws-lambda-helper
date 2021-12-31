@@ -255,6 +255,10 @@ class EthereumSmartContractHelper {
         const web3 = this.web3(network);
         return new web3.Contract(IERC20_json_1.default, token);
     }
+    gasPrice(network) {
+        const web3 = this.web3(network);
+        return web3.getGasPrice();
+    }
     _web3(network) {
         ferrum_plumbing_1.ValidationUtils.isTrue(!!this.provider[network], 'No provider is configured for ' + network);
         const key = 'PROVIDER_' + network;

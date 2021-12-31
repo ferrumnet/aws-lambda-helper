@@ -10,19 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BasicHandlerFunction = void 0;
+const ferrum_plumbing_1 = require("ferrum-plumbing");
 const LambdaGlobalContext_1 = require("../LambdaGlobalContext");
-const global = { init: false };
+const globalContainerCount = { cnt: 0 };
+const globalCache = new ferrum_plumbing_1.LocalCache();
 function init(module) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (global.init) {
-            return LambdaGlobalContext_1.LambdaGlobalContext.container();
-        }
-        const container = yield LambdaGlobalContext_1.LambdaGlobalContext.container();
-        yield container.registerModule(module);
-        global.init = true;
-        return container;
+        return globalCache.getAsync('CONTAINER', () => __awaiter(this, void 0, void 0, function* () {
+            ferrum_plumbing_1.ValidationUtils.isTrue(globalContainerCount.cnt === 0, 'ERROR! Multiple container per instance');
+            const container = yield LambdaGlobalContext_1.LambdaGlobalContext.container();
+            globalContainerCount.cnt += 1;
+            yield container.registerModule(module);
+            return container;
+        }));
     });
 }
+// Should be only one instance per lambda
 class BasicHandlerFunction {
     constructor(module) {
         this.module = module;

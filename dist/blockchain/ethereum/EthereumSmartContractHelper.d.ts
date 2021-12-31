@@ -43,6 +43,7 @@ export declare class EthereumSmartContractHelper implements Injectable {
     decimals(currency: string): Promise<number>;
     name(currency: string): Promise<string>;
     erc20(network: string, token: string): import("web3-eth-contract").Contract;
+    gasPrice(network: string): Promise<string>;
     private _web3;
     web3Eth(network: string): Eth;
     web3(network: string): Eth;
