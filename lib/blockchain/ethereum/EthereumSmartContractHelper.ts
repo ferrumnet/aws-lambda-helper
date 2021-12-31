@@ -293,6 +293,11 @@ export class EthereumSmartContractHelper implements Injectable {
         return new web3.Contract(erc20Abi as any, token);
     }
 
+    public gasPrice(network: string) {   
+        const web3 = this.web3(network);
+        return web3.getGasPrice();
+    }
+
     private _web3(network: string): Web3 {
         ValidationUtils.isTrue(!!this.provider[network], 'No provider is configured for ' + network);
         const key = 'PROVIDER_' + network;

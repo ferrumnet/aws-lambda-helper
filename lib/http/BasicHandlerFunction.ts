@@ -1,19 +1,21 @@
-import { Module } from "ferrum-plumbing";
+import { LocalCache, Module, ValidationUtils } from "ferrum-plumbing";
 import { LambdaGlobalContext } from "../LambdaGlobalContext";
 
-const global = { init: false };
+const globalContainerCount = { cnt: 0 };
+const globalCache = new LocalCache();
 
 async function init(module: Module) {
-    if (global.init) {
-        return LambdaGlobalContext.container();
-    }
-    const container = await LambdaGlobalContext.container();
-    await container.registerModule(module);
-    global.init = true;
-    return container;
+    return globalCache.getAsync('CONTAINER', async () => {
+        ValidationUtils.isTrue(globalContainerCount.cnt === 0, 'ERROR! Multiple container per instance');
+        const container = await LambdaGlobalContext.container();
+        globalContainerCount.cnt += 1;
+        await container.registerModule(module);
+        return container;
+    });
 }
 
-export class BasicHandlerFunction {
+// Should be only one instance per lambda
+export class BasicHandlerFunction { 
     constructor(public module: Module) {
         this.handler = this.handler.bind(this);
     }
@@ -38,3 +40,4 @@ export class BasicHandlerFunction {
         }
     }
 }
+
