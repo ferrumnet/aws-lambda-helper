@@ -17,8 +17,10 @@ const globalCache = new ferrum_plumbing_1.LocalCache();
 function init(module) {
     return __awaiter(this, void 0, void 0, function* () {
         return globalCache.getAsync('CONTAINER', () => __awaiter(this, void 0, void 0, function* () {
-            ferrum_plumbing_1.ValidationUtils.isTrue(globalContainerCount.cnt === 0, 'ERROR! Multiple container per instance');
             const container = yield LambdaGlobalContext_1.LambdaGlobalContext.container();
+            if (globalContainerCount.cnt === 0) {
+                console.error('ERROR! Multiple container per instance', globalContainerCount);
+            }
             globalContainerCount.cnt += 1;
             yield container.registerModule(module);
             return container;

@@ -6,8 +6,10 @@ const globalCache = new LocalCache();
 
 async function init(module: Module) {
     return globalCache.getAsync('CONTAINER', async () => {
-        ValidationUtils.isTrue(globalContainerCount.cnt === 0, 'ERROR! Multiple container per instance');
         const container = await LambdaGlobalContext.container();
+        if (globalContainerCount.cnt === 0) {
+            console.error('ERROR! Multiple container per instance', globalContainerCount);
+        }
         globalContainerCount.cnt += 1;
         await container.registerModule(module);
         return container;
