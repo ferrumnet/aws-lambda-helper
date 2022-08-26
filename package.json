@@ -42,7 +42,7 @@
     "ferrum-crypto": "git+https://github.com/ferrumnet/ferrum-crypto.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.1.2",
+    "mongoose": "^6.4.6",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
     "web3": "^1.2.11"
   }
