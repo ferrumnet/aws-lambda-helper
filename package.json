@@ -41,7 +41,7 @@
     "ethers": "^5.4.1",
     "ferrum-crypto": "git+https://github.com/ferrumnet/ferrum-crypto.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.1.2",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
     "web3": "^1.2.11"
