@@ -33,6 +33,6 @@
     "ferrum-crypto": "git+https://github.com/ferrumnet/ferrum-crypto.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
-    "mongoose": "^5.7.7"
+    "mongoose": "^5.13.15"
   }
 }
