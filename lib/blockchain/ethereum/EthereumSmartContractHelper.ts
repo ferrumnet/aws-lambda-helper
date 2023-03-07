@@ -322,7 +322,7 @@ export class EthereumSmartContractHelper implements Injectable {
         const key = 'PROVIDER_ETHERS_' + network;
         let prov = this.cache.get(key);
         if (!prov) {
-			prov = new ethers.providers.JsonRpcProvider(this.provider[network]);
+            prov = new ethers.providers.Web3Provider(this.web3(network).currentProvider as any);
             this.cache.set(key, prov, PROVIDER_TIMEOUT);
         }
         return prov;

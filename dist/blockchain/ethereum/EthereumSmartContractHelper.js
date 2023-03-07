@@ -280,7 +280,7 @@ class EthereumSmartContractHelper {
         const key = 'PROVIDER_ETHERS_' + network;
         let prov = this.cache.get(key);
         if (!prov) {
-            prov = new ethers_1.ethers.providers.JsonRpcProvider(this.provider[network]);
+            prov = new ethers_1.ethers.providers.Web3Provider(this.web3(network).currentProvider);
             this.cache.set(key, prov, PROVIDER_TIMEOUT);
         }
         return prov;
