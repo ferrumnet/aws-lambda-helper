@@ -53,5 +53,6 @@ export declare class EthereumSmartContractHelper implements Injectable {
     static callRequest(contract: string, currency: string, from: string, data: string, gasLimit: string, nonce: number, description: string): CustomTransactionCallRequest;
     static parseCurrency(currency: string): [string, string];
     static toCurrency(network: string, token: string): string;
+    static isBaseCurrency(currency: string): boolean;
 }
 //# sourceMappingURL=EthereumSmartContractHelper.d.ts.map

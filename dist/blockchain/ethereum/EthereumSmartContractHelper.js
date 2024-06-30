@@ -230,6 +230,9 @@ class EthereumSmartContractHelper {
     }
     decimals(currency) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (EthereumSmartContractHelper.isBaseCurrency(currency)) {
+                return 18;
+            }
             const [network, token] = EthereumSmartContractHelper.parseCurrency(currency);
             return this.cache.getAsync('DECIMALS_' + currency, () => {
                 const tokenCon = this.erc20(network, token);
@@ -334,6 +337,10 @@ class EthereumSmartContractHelper {
     }
     static toCurrency(network, token) {
         return `${network}:${token}`;
+    }
+    static isBaseCurrency(currency) {
+        const tok = currency.split(':')[1];
+        return !!tok && !tok.startsWith('0x');
     }
 }
 exports.EthereumSmartContractHelper = EthereumSmartContractHelper;

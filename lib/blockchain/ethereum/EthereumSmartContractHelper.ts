@@ -271,6 +271,7 @@ export class EthereumSmartContractHelper implements Injectable {
     }
 
     public async decimals(currency: string): Promise<number> {
+        if (EthereumSmartContractHelper.isBaseCurrency(currency)) { return 18; }
         const [network, token] = EthereumSmartContractHelper.parseCurrency(currency);
         return this.cache.getAsync('DECIMALS_' + currency, () => {
             const tokenCon = this.erc20(network, token);
@@ -380,5 +381,10 @@ export class EthereumSmartContractHelper implements Injectable {
 
     public static toCurrency(network: string, token: string): string {
         return `${network}:${token}`;
+    }
+
+    public static isBaseCurrency(currency: string): boolean {
+        const tok = currency.split(':')[1];
+        return !!tok && !tok.startsWith('0x');
     }
 }
